@@ -45,9 +45,13 @@ router.post("/login", async (req, res) => {
     const user = await User.findOne({ email: email });
     if (!user)
       return res.status(400).json({ msg: "No account with email exists." });
-
+    //compare the password entered to the password stored in the DB
     const isMatch = await bcrypt.compare(password, user.password);
+    //if no match, send error messsage
     if (!isMatch) res.status(400).json({ msg: "invalid credentials." });
+    //if passwords match, generate JWT token
+    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET);
+    res.send(token);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
